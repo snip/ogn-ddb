@@ -208,14 +208,20 @@ require_once 'language/english.php';
 
 $lang = $languages['english'];
 
-if (isset($_GET['l'])) {
+// Whitelist of supported languages. User-supplied values must be validated
+// against this list BEFORE being used in an include path, otherwise a crafted
+// value (e.g. path traversal or a PHP stream wrapper) could include arbitrary
+// files (local/remote file inclusion).
+$available_languages = array('english', 'german', 'french', 'dutch', 'czech');
+
+if (isset($_GET['l']) && in_array($_GET['l'], $available_languages, true)) {
     include_once 'language/'.$_GET['l'].'.php';
 
     if (isset($languages[$_GET['l']])) {
         $lang = array_merge($lang, $languages[$_GET['l']]);
         $_SESSION['lang'] = $_GET['l'];
     }
-} elseif (isset($_SESSION['lang'])) {
+} elseif (isset($_SESSION['lang']) && in_array($_SESSION['lang'], $available_languages, true)) {
     include_once 'language/'.$_SESSION['lang'].'.php';
     $lang = array_merge($lang, $languages[$_SESSION['lang']]);
 }
